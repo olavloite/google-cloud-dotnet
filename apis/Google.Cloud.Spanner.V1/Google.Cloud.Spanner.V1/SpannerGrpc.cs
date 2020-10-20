@@ -20,6 +20,8 @@
 #pragma warning disable 0414, 1591
 #region Designer generated code
 
+using Google.Type;
+using System.Diagnostics;
 using grpc = global::Grpc.Core;
 
 namespace Google.Cloud.Spanner.V1 {
@@ -638,7 +640,7 @@ namespace Google.Cloud.Spanner.V1 {
       /// <returns>The call object.</returns>
       public virtual grpc::AsyncUnaryCall<global::Google.Cloud.Spanner.V1.BatchCreateSessionsResponse> BatchCreateSessionsAsync(global::Google.Cloud.Spanner.V1.BatchCreateSessionsRequest request, grpc::CallOptions options)
       {
-        return CallInvoker.AsyncUnaryCall(__Method_BatchCreateSessions, null, options, request);
+                return CallInvoker.AsyncUnaryCall(__Method_BatchCreateSessions, null, options, request);
       }
       /// <summary>
       /// Gets a session. Returns `NOT_FOUND` if the session does not exist.
@@ -1162,24 +1164,24 @@ namespace Google.Cloud.Spanner.V1 {
       /// <returns>The call object.</returns>
       public virtual grpc::AsyncUnaryCall<global::Google.Cloud.Spanner.V1.Transaction> BeginTransactionAsync(global::Google.Cloud.Spanner.V1.BeginTransactionRequest request, grpc::CallOptions options)
       {
-        return CallInvoker.AsyncUnaryCall(__Method_BeginTransaction, null, options, request);
-      }
-      /// <summary>
-      /// Commits a transaction. The request includes the mutations to be
-      /// applied to rows in the database.
-      ///
-      /// `Commit` might return an `ABORTED` error. This can occur at any time;
-      /// commonly, the cause is conflicts with concurrent
-      /// transactions. However, it can also happen for a variety of other
-      /// reasons. If `Commit` returns `ABORTED`, the caller should re-attempt
-      /// the transaction from the beginning, re-using the same session.
-      /// </summary>
-      /// <param name="request">The request to send to the server.</param>
-      /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
-      /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
-      /// <param name="cancellationToken">An optional token for canceling the call.</param>
-      /// <returns>The response received from the server.</returns>
-      public virtual global::Google.Cloud.Spanner.V1.CommitResponse Commit(global::Google.Cloud.Spanner.V1.CommitRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+                return CallInvoker.AsyncUnaryCall(__Method_BeginTransaction, null, options, request);
+            }
+            /// <summary>
+            /// Commits a transaction. The request includes the mutations to be
+            /// applied to rows in the database.
+            ///
+            /// `Commit` might return an `ABORTED` error. This can occur at any time;
+            /// commonly, the cause is conflicts with concurrent
+            /// transactions. However, it can also happen for a variety of other
+            /// reasons. If `Commit` returns `ABORTED`, the caller should re-attempt
+            /// the transaction from the beginning, re-using the same session.
+            /// </summary>
+            /// <param name="request">The request to send to the server.</param>
+            /// <param name="headers">The initial metadata to send with the call. This parameter is optional.</param>
+            /// <param name="deadline">An optional deadline for the call. The call will be cancelled if deadline is hit.</param>
+            /// <param name="cancellationToken">An optional token for canceling the call.</param>
+            /// <returns>The response received from the server.</returns>
+            public virtual global::Google.Cloud.Spanner.V1.CommitResponse Commit(global::Google.Cloud.Spanner.V1.CommitRequest request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
       {
         return Commit(request, new grpc::CallOptions(headers, deadline, cancellationToken));
       }

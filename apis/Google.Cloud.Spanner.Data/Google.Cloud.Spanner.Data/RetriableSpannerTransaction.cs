@@ -287,6 +287,7 @@ namespace Google.Cloud.Spanner.Data
                 try
                 {
                     base.Commit();
+                    break;
                 }
                 catch (SpannerException e) when (e.ErrorCode == ErrorCode.Aborted)
                 {

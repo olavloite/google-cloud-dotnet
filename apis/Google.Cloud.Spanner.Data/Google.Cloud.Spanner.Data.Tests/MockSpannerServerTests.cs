@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Spanner.V1;
 using Google.Protobuf;
 using Grpc.Core;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Transactions;
@@ -48,6 +50,23 @@ namespace Google.Cloud.Spanner.Data.Tests
             request.SessionTemplate = new Session();
             BatchCreateSessionsResponse response = client.BatchCreateSessions(request);
             Assert.Equal(25, response.Session.Count);
+        }
+
+        [Fact]
+        public void BatchCreateSessionsForReal()
+        {
+            SpannerClientBuilder builder = new SpannerClientBuilder();
+            //builder.Endpoint = _fixture.Endpoint;
+            builder.CredentialsPath = "C:\\Users\\koloi\\OneDrive\\Documents\\CloudSpannerKeys\\appdev-soda-spanner-staging.json";
+            SpannerClient client = builder.Build();
+
+            var watch = Stopwatch.StartNew();
+            Debug.WriteLine("Listing sessions");
+            foreach (var s in client.ListSessions("projects/appdev-soda-spanner-staging/instances/test-instance/databases/testdb_941233300_0000").AsEnumerable())
+            {
+                Debug.WriteLine(s.Name);
+            }
+            Debug.WriteLine($"Finished listing sessions {watch.Elapsed}");
         }
 
         [Fact]

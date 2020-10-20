@@ -35,8 +35,8 @@ namespace Google.Cloud.Spanner.V1
         private double _writeSessionsFraction = 0.2;
         private TimeSpan _timeout = TimeSpan.FromSeconds(60);
         private TimeSpan _maintenanceLoopDelay = TimeSpan.FromSeconds(30);
-        private int _createSessionMaximumBatchSize = 5;
-        private int _maximumConcurrentSessionCreates = 50;
+        private int _createSessionMaximumBatchSize = 25;
+        private int _maximumConcurrentSessionCreates = 500;
         private RetrySettings.IJitter _sessionRefreshJitter = new ProportionalRandomJitter(0.1);
         private RetrySettings.IJitter _sessionEvictionJitter = new ProportionalRandomJitter(0.1);
 

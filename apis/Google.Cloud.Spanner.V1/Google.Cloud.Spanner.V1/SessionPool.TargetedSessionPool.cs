@@ -20,6 +20,7 @@ using Grpc.Core;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -735,6 +736,7 @@ namespace Google.Cloud.Spanner.V1
                 bool success = false;
                 bool canceled = false;
                 int actualCreatedSessions = 0;
+                Stopwatch watch = null;
                 try
                 {
                     var callSettings = Client.Settings.BatchCreateSessionsSettings
@@ -751,12 +753,15 @@ namespace Google.Cloud.Spanner.V1
                     try
                     {
                         await Parent._batchSessionCreateSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+                        watch = Stopwatch.StartNew();
+                        Debug.WriteLine($"CreatePooledSessionsAsync starting: {System.DateTime.Now}");
                         acquiredSemaphore = true;
                         batchSessionCreateResponse = await Client.BatchCreateSessionsAsync(batchCreateSessionRequest, callSettings).ConfigureAwait(false);
                         success = true;
                         actualCreatedSessions = batchSessionCreateResponse.Session.Count;
+                        Debug.WriteLine($"CreatePooledSessionsAsync: {watch?.Elapsed}");
 
-                        foreach(var sessionProto in batchSessionCreateResponse.Session)
+                        foreach (var sessionProto in batchSessionCreateResponse.Session)
                         {
                             pooledSessions.Add(PooledSession.FromSessionName(this, sessionProto.SessionName));
                         }

@@ -142,11 +142,24 @@ namespace Google.Cloud.Spanner.Data.Tests
             return new ExecutionTime(0, exception, streamIndex);
         }
 
+        internal static ExecutionTime Time(int executionTimeMillis)
+        {
+            return new ExecutionTime(executionTimeMillis, null, 0);
+        }
+
         private ExecutionTime(int executionTime, Exception exception, int exceptionStreamIndex)
         {
             _executionTime = executionTime;
             _exception = exception;
             _exceptionStreamIndex = exceptionStreamIndex;
+        }
+
+        internal async Task SimulateExecution()
+        {
+            if (_executionTime > 0)
+            {
+                await Task.Delay(_executionTime);
+            }
         }
     }
 
@@ -266,15 +279,25 @@ namespace Google.Cloud.Spanner.Data.Tests
             _requests = new ConcurrentQueue<IMessage>();
         }
 
-        public override Task<Transaction> BeginTransaction(BeginTransactionRequest request, ServerCallContext context)
+        internal async Task SimulateExecutionTime(String method)
+        {
+            ExecutionTime time;
+            if (_executionTimes.TryGetValue(method, out time))
+            {
+                await time.SimulateExecution();
+            }
+        }
+
+        public override async Task<Transaction> BeginTransaction(BeginTransactionRequest request, ServerCallContext context)
         {
             _requests.Enqueue(request);
+            await SimulateExecutionTime(nameof(BeginTransaction));
             TryFindSession(request.SessionAsSessionName);
             Transaction tx = new Transaction();
             var id = Interlocked.Increment(ref _transactionCounter);
             tx.Id = ByteString.CopyFromUtf8($"{request.SessionAsSessionName}/transactions/{id}");
             _transactions.TryAdd(tx.Id, tx);
-            return Task.FromResult(tx);
+            return tx;
         }
 
         public override Task<CommitResponse> Commit(CommitRequest request, ServerCallContext context)
@@ -289,17 +312,6 @@ namespace Google.Cloud.Spanner.Data.Tests
             Timestamp ts = Timestamp.FromDateTime(DateTime.UtcNow);
             response.CommitTimestamp = ts;
             return Task.FromResult(response);
-        }
-
-        private Session CreateSession(DatabaseName database)
-        {
-            var id = Interlocked.Increment(ref _sessionCounter);
-            Session session = new Session { SessionName = new SessionName(database.ProjectId, database.InstanceId, database.DatabaseId, $"session-{id}") };
-            if (!_sessions.TryAdd(session.SessionName, session))
-            {
-                throw new RpcException(new Grpc.Core.Status(StatusCode.AlreadyExists, $"Session with id session-{id} already exists"));
-            }
-            return session;
         }
 
         static internal RpcException CreateAbortedException()
@@ -360,16 +372,28 @@ namespace Google.Cloud.Spanner.Data.Tests
             return tx;
         }
 
-        public override Task<BatchCreateSessionsResponse> BatchCreateSessions(BatchCreateSessionsRequest request, ServerCallContext context)
+        private Session CreateSession(DatabaseName database)
+        {
+            var id = Interlocked.Increment(ref _sessionCounter);
+            Session session = new Session { SessionName = new SessionName(database.ProjectId, database.InstanceId, database.DatabaseId, $"session-{id}") };
+            if (!_sessions.TryAdd(session.SessionName, session))
+            {
+                throw new RpcException(new Grpc.Core.Status(StatusCode.AlreadyExists, $"Session with id session-{id} already exists"));
+            }
+            return session;
+        }
+
+        public override async Task<BatchCreateSessionsResponse> BatchCreateSessions(BatchCreateSessionsRequest request, ServerCallContext context)
         {
             _requests.Enqueue(request);
+            await SimulateExecutionTime(nameof(BatchCreateSessions));
             var database = request.DatabaseAsDatabaseName;
             BatchCreateSessionsResponse response = new BatchCreateSessionsResponse();
             for (int i = 0; i < request.SessionCount; i++)
             {
                 response.Session.Add(CreateSession(database));
             }
-            return Task.FromResult(response);
+            return response;
         }
 
         public override Task<Session> CreateSession(CreateSessionRequest request, ServerCallContext context)

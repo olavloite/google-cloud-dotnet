@@ -29,6 +29,7 @@ using sco = System.Collections.ObjectModel;
 using linq = System.Linq;
 using st = System.Threading;
 using stt = System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Google.Cloud.Spanner.V1
 {
@@ -2637,10 +2638,14 @@ namespace Google.Cloud.Spanner.V1
         /// <param name="request">The request object containing all of the parameters for the API call.</param>
         /// <param name="callSettings">If not null, applies overrides to this RPC call.</param>
         /// <returns>A Task containing the RPC response.</returns>
-        public override stt::Task<BatchCreateSessionsResponse> BatchCreateSessionsAsync(BatchCreateSessionsRequest request, gaxgrpc::CallSettings callSettings = null)
+        public override async stt::Task<BatchCreateSessionsResponse> BatchCreateSessionsAsync(BatchCreateSessionsRequest request, gaxgrpc::CallSettings callSettings = null)
         {
             Modify_BatchCreateSessionsRequest(ref request, ref callSettings);
-            return _callBatchCreateSessions.Async(request, callSettings);
+            Stopwatch watch = Stopwatch.StartNew();
+            Debug.WriteLine($"Client BatchCreateSessions starting: {System.DateTime.Now}");
+            var res = await _callBatchCreateSessions.Async(request, callSettings).ConfigureAwait(false);
+            Debug.WriteLine($"Client BatchCreateSessions: {watch.Elapsed}");
+            return res;
         }
 
         /// <summary>
